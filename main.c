@@ -1,24 +1,21 @@
-#include "SDL2headers.h"
+#include "builds.h"
 
 #include <stdio.h>
 
-#define DEBUG_SBX
 
-void SBX();
+#define DEBUG_DEV
 
 
 int main(void){
+#ifdef DEBUG_SBX
 	SBX();
+#endif
+#ifdef DEBUG_DEV
+	DEV();
+#endif
+#ifdef DEBUG_DEV
+	PROD();
+#endif
 	return 0;
 }
 
-void SBX(){
-#ifdef DEBUG_SBX
-	SDL_Window* window = SDL_CreateWindow(
-		"window 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 200, 800, SDL_WINDOW_RESIZABLE
-	);
-	printf("ok\n");
-	getc(stdin);
-	SDL_DestroyWindow(window);
-#endif
-}
