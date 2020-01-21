@@ -1,6 +1,8 @@
 #include "eventhandler.h"
 #include "SDL2headers.h"
 
+#include <stdio.h>
+
 
 #define OK 0x0
 #define END 0x1
@@ -23,6 +25,7 @@ void eh_update(EventHandler* eh){
 			case SDL_MOUSEMOTION:
 				eh->mouse_x = eh->event.motion.x;
 				eh->mouse_y = eh->event.motion.y;
+				break;
 			case SDL_MOUSEBUTTONDOWN:
 				if(eh->mouse_clicked || eh->mouse_held){
 					eh->mouse_clicked = 0;
@@ -30,9 +33,11 @@ void eh_update(EventHandler* eh){
 				}else{
 					eh->mouse_clicked = 1;
 				}
+				break;
 			case SDL_MOUSEBUTTONUP:
 				eh->mouse_clicked = 0;
 				eh->mouse_held = 0;
+				break;
 			default:
 				break;
 		}
