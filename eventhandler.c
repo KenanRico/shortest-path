@@ -17,6 +17,7 @@ void eh_init(EventHandler* eh){
 }
 
 void eh_update(EventHandler* eh){
+	eh->mouse_clicked = 0;
 	if(SDL_PollEvent(&eh->event)){
 		switch(eh->event.type){
 			case SDL_QUIT:
@@ -27,15 +28,10 @@ void eh_update(EventHandler* eh){
 				eh->mouse_y = eh->event.motion.y;
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				if(eh->mouse_clicked || eh->mouse_held){
-					eh->mouse_clicked = 0;
-					eh->mouse_held = 1;
-				}else{
-					eh->mouse_clicked = 1;
-				}
+				eh->mouse_clicked = 1;
+				eh->mouse_held = 1;
 				break;
 			case SDL_MOUSEBUTTONUP:
-				eh->mouse_clicked = 0;
 				eh->mouse_held = 0;
 				break;
 			default:

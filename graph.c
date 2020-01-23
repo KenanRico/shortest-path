@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define OK 0
+#define OK 0x0
+#define TOO_MANY_VERTICES 0x1
 
 
 void g_init(Graph* g){
@@ -19,6 +20,10 @@ void g_init(Graph* g){
 
 void g_update(Graph* g, EventHandler const * eh){
 	if(eh->mouse_clicked){
+		if(g->size >= MAX_VERTEX_COUNT){
+			g->state |= TOO_MANY_VERTICES;
+			return;
+		}
 		int i = g->size;
 		++g->size;
 		g->v_pos_x[i] = eh->mouse_x;
