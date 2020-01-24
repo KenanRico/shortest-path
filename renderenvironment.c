@@ -1,10 +1,12 @@
 #include "renderenvironment.h"
 
+#include "SDL2headers.h"
 
 
 #define OK 0
 #define BAD_WINDOW 0x1
 #define BAD_RENDERER 0x2
+#define BAD_IMAGE 0x4
 
 
 void re_init(RenderEnvironment* re){
@@ -22,13 +24,33 @@ void re_init(RenderEnvironment* re){
 		return;
 	}
 	SDL_SetRenderDrawColor(re->renderer, 240, 240, 240, 255);
+
+	/*load vertex texture*/
+	SDL_Surface* surf = IMG_Load("assets/vertex.png");
+	if(surf==NULL){
+		re->state |= BAD_IMAGE;
+		return;
+	}
+	re->elements.node = SDL_CreateTextureFromSurface(re->renderer, surf);
+	SDL_FreeSurface(surf);
+	/*load edge texture*/
+	surf = IMG_Load("assets/edge.png");
+	if(surf==NULL){
+		re->state |= BAD_IMAGE;
+		return;
+	}
+	re->elements.edge = SDL_CreateTextureFromSurface(re->renderer, surf);
+	SDL_FreeSurface(surf);
 }
 
 
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 	SDL_RenderClear(re->renderer);
 	/*content*/
-
+	//SDL_Rect on_screen_dim = (SDL_Rect){...};
+	for(int i=0; i<g->size; ++i){
+		//SDL_RenderCopyEx(..);
+	}
 	SDL_RenderPresent(re->renderer);
 }
 

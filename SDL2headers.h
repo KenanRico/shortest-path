@@ -5,5 +5,6 @@
 #ifdef main
 #undef main
 #endif
+#include <SDL2/extensions/SDL_image.h>
 
 #endif
