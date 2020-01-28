@@ -20,6 +20,7 @@ void DEV(){
 
 	while((box.state|events.state|graph.state)==0){
 		eh_update(&events);
+		re_update(&box);
 		if(!graph.constructing){
 			g_update(&graph, &events);
 		}

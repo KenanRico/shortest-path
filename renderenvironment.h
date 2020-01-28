@@ -6,8 +6,8 @@
 #include "graph.h"
 
 typedef struct Elements{
-	SDL_Texture* node; SDL_Rect node_dim;
-	SDL_Texture* edge; SDL_Rect edge_dim;
+	SDL_Texture* node; SDL_Rect vertex_src; SDL_Rect vertex_dest; 
+	SDL_Texture* edge; SDL_Rect edge_src; SDL_Rect edge_dest; 
 } Elements;
 
 typedef struct RenderEnvironment{
@@ -17,7 +17,12 @@ typedef struct RenderEnvironment{
 	uint32_t state;
 } RenderEnvironment;
 
+
+extern int window_width;
+extern int window_height;
+
 void re_init(RenderEnvironment*);
+void re_update(RenderEnvironment*);
 void re_render(RenderEnvironment*, EventHandler const *, Graph const *);
 void re_free(RenderEnvironment*);
 

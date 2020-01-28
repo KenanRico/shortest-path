@@ -9,12 +9,17 @@
 #define BAD_IMAGE 0x4
 
 
+
+int window_width = 400;
+int window_height = 500;
+
+
 void re_init(RenderEnvironment* re){
 	/*set state*/
 	re->state = OK;
 	/*init window and renderer*/
 	if((re->window = SDL_CreateWindow(
-		"window 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 200, 500, SDL_WINDOW_RESIZABLE
+		"window 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE
 	)) == NULL){
 		re->state |= BAD_WINDOW;
 		return;
@@ -33,6 +38,11 @@ void re_init(RenderEnvironment* re){
 	}
 	re->elements.node = SDL_CreateTextureFromSurface(re->renderer, surf);
 	SDL_FreeSurface(surf);
+	{
+		int w, h = 0;
+		SDL_QueryTexture(re->elements.node, NULL, NULL, &w, &h);
+		re->elements.vertex_src = (SDL_Rect){0,0,w,h};
+	}
 	/*load edge texture*/
 	surf = IMG_Load("assets/edge.png");
 	if(surf==NULL){
@@ -41,13 +51,22 @@ void re_init(RenderEnvironment* re){
 	}
 	re->elements.edge = SDL_CreateTextureFromSurface(re->renderer, surf);
 	SDL_FreeSurface(surf);
+	{
+		int w, h = 0;
+		SDL_QueryTexture(re->elements.edge, NULL, NULL, &w, &h);
+		re->elements.edge_src = (SDL_Rect){0,0,w,h};
+	}
+}
+
+
+void re_update(RenderEnvironment* re){
+	SDL_GetWindowSize(re->window, &window_width, &window_height);
 }
 
 
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
+
 	SDL_RenderClear(re->renderer);
-	/*content*/
-	//SDL_Rect on_screen_dim = (SDL_Rect){...};
 	for(int i=0; i<g->size; ++i){
 		//SDL_RenderCopyEx(..);
 	}
@@ -58,4 +77,6 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 void re_free(RenderEnvironment* re){
 	SDL_DestroyWindow(re->window);
 	SDL_DestroyRenderer(re->renderer);
+	SDL_DestroyTexture(re->elements.node);
+	SDL_DestroyTexture(re->elements.edge);
 }
