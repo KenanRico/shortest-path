@@ -1,5 +1,6 @@
 #include "eventhandler.h"
 #include "SDL2headers.h"
+#include "states.h"
 
 #include <stdio.h>
 
@@ -13,7 +14,7 @@ void eh_init(EventHandler* eh){
 	eh->mouse_y = 0.0f;
 	eh->mouse_clicked = 0;
 	eh->mouse_held = 0;
-	eh->state = OK;
+	eh->state = &states[EVENTS];
 }
 
 void eh_update(EventHandler* eh){
@@ -21,7 +22,7 @@ void eh_update(EventHandler* eh){
 	if(SDL_PollEvent(&eh->event)){
 		switch(eh->event.type){
 			case SDL_QUIT:
-				eh->state = END;
+				*eh->state = END;
 				break;
 			case SDL_MOUSEMOTION:
 				eh->mouse_x = eh->event.motion.x;

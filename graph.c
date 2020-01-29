@@ -1,6 +1,7 @@
 #include "graph.h"
 #include "eventhandler.h"
 #include "renderenvironment.h"
+#include "states.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -25,7 +26,7 @@ void g_init(Graph* g){
 	memset(g->v_pos_x, 0, sizeof(int)*MAX_VERTEX_COUNT);
 	memset(g->v_pos_y, 0, sizeof(int)*MAX_VERTEX_COUNT);
 	g->size = 0;
-	g->state = OK;
+	g->state = &states[GRAPH];
 	g->constructing = 0;
 	g->first_v_in_edge = -1;
 }
@@ -38,7 +39,7 @@ void g_update(Graph* g, EventHandler const * eh){
 		int vertex = g_select_vertex(eh->mouse_x, eh->mouse_y, g);
 		if(vertex==-1){ /*no current vertex selected, add new*/
 			if(g->size >= MAX_VERTEX_COUNT){
-				g->state |= TOO_MANY_VERTICES;
+				*g->state |= TOO_MANY_VERTICES;
 				return;
 			}
 			int i = g->size;

@@ -3,6 +3,7 @@
 #include "renderenvironment.h"
 #include "eventhandler.h"
 #include "graph.h"
+#include "states.h"
 
 #include <stdio.h>
 
@@ -17,8 +18,8 @@ void DEV(){
 
 	Graph graph;
 	g_init(&graph);
-
-	while((box.state|events.state|graph.state)==0){
+	
+	while((states[RENDER]|states[EVENTS]|states[GRAPH])==0){
 		eh_update(&events);
 		re_update(&box);
 		if(!graph.constructing){

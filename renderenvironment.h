@@ -6,7 +6,7 @@
 #include "graph.h"
 
 typedef struct Elements{
-	SDL_Texture* node; SDL_Rect vertex_src; SDL_Rect vertex_dest; 
+	SDL_Texture* vertex; SDL_Rect vertex_src; SDL_Rect vertex_dest; 
 	SDL_Texture* edge; SDL_Rect edge_src; SDL_Rect edge_dest; 
 } Elements;
 
@@ -14,7 +14,7 @@ typedef struct RenderEnvironment{
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	Elements elements;
-	uint32_t state;
+	uint32_t* state;
 } RenderEnvironment;
 
 

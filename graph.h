@@ -10,12 +10,12 @@
 
 typedef struct Graph{
 	int** graph;
+	int size;
 	float v_pos_x[MAX_VERTEX_COUNT];
 	float v_pos_y[MAX_VERTEX_COUNT];
-	int size;
 	int first_v_in_edge;
 	_Bool constructing;
-	uint32_t state;
+	uint32_t* state;
 } Graph;
 
 
