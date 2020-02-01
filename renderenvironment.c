@@ -4,6 +4,7 @@
 #include "SDL2headers.h"
 
 #include <stdlib.h>
+#include <math.h>
 
 
 #define OK 0
@@ -71,6 +72,7 @@ float slope(Graph const * g, int v1, int v2){
 	return (float)(g->v_pos_y[v1]-g->v_pos_y[v2]) / (float)(g->v_pos_x[v1]-g->v_pos_x[v2]);
 }
 
+#include <stdio.h>
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 
 	SDL_RenderClear(re->renderer);
@@ -83,12 +85,32 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 		for(int j=0; j<g->size; ++j){
 			/*edge render placeholder*/
 			if(g->graph[i][j]){
+				/*
 				re->elements.edge_dest.x = _MIN(g->v_pos_x[i], g->v_pos_x[j]);
 				re->elements.edge_dest.y = _MIN(g->v_pos_y[i], g->v_pos_y[j]);
 				re->elements.edge_dest.w = abs(g->v_pos_x[i]-g->v_pos_x[j]);
 				re->elements.edge_dest.h = abs(g->v_pos_y[i]-g->v_pos_y[j]);
 				SDL_RendererFlip flip = (slope(g,i,j)<0) ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
-				SDL_RenderCopyEx(re->renderer, re->elements.edge, &re->elements.edge_src, &re->elements.edge_dest, 0.0f, NULL, flip);
+				*/
+				/*compute dest rect*/
+				re->elements.edge_dest.x = g->v_pos_x[i];
+				re->elements.edge_dest.y = g->v_pos_y[i]-25;
+				re->elements.edge_dest.w = sqrt(
+					(g->v_pos_x[i]-g->v_pos_x[j])*(g->v_pos_x[i]-g->v_pos_x[j]) +
+					(g->v_pos_y[i]-g->v_pos_y[j])*(g->v_pos_y[i]-g->v_pos_y[j])
+				);
+				re->elements.edge_dest.h = 50;
+				/*rotate center*/
+				SDL_Point center = (SDL_Point){g->v_pos_x[i], g->v_pos_y[i]};
+				/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
+				float angle = -tan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180/3.1415926;
+				printf(
+					"%d,%d,%d,%d | %d,%d | %f\n",
+					re->elements.edge_dest.x, re->elements.edge_dest.y, re->elements.edge_dest.w, re->elements.edge_dest.h,
+					center.x, center.y,
+					angle
+				);
+				SDL_RenderCopyEx(re->renderer, re->elements.edge, &re->elements.edge_src, &re->elements.edge_dest, angle, &center, SDL_FLIP_NONE);
 			}
 		}
 	}

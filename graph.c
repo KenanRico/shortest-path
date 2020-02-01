@@ -52,6 +52,7 @@ void g_update(Graph* g, EventHandler const * eh){
 			}else{
 				g->graph[g->first_v_in_edge][vertex] = 100; //100 is placeholder edge weight
 				g->graph[vertex][g->first_v_in_edge] = 100; //100 is placeholder edge weight
+				g->first_v_in_edge = -1;
 			}
 		}
 	}else if(eh->mouse_held){
