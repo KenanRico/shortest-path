@@ -93,18 +93,18 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 				SDL_RendererFlip flip = (slope(g,i,j)<0) ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
 				*/
 				/*compute dest rect*/
-				re->elements.edge_dest.x = g->v_pos_x[i];
-				re->elements.edge_dest.y = g->v_pos_y[i]-25;
 				re->elements.edge_dest.w = sqrt(
 					(g->v_pos_x[i]-g->v_pos_x[j])*(g->v_pos_x[i]-g->v_pos_x[j]) +
 					(g->v_pos_y[i]-g->v_pos_y[j])*(g->v_pos_y[i]-g->v_pos_y[j])
 				);
-				re->elements.edge_dest.h = 50;
+				re->elements.edge_dest.h = 100;
+				re->elements.edge_dest.x = g->v_pos_x[i];
+				re->elements.edge_dest.y = g->v_pos_y[i]-re->elements.edge_dest.h/2;
 				/*rotate center*/
-				SDL_Point center = (SDL_Point){0, 25};
+				SDL_Point center = (SDL_Point){0, re->elements.edge_dest.h/2};
 				/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
-				//float angle = -tan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180/3.1415926;
-				float angle = counter;
+				float angle = -tan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180/3.1415926;
+				//float angle = counter;
 				printf(
 					"%d,%d,%d,%d | %d,%d | %f\n",
 					re->elements.edge_dest.x, re->elements.edge_dest.y, re->elements.edge_dest.w, re->elements.edge_dest.h,
