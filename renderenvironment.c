@@ -74,7 +74,7 @@ float slope(Graph const * g, int v1, int v2){
 
 #include <stdio.h>
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
-
+	static int counter = 0;
 	SDL_RenderClear(re->renderer);
 	for(int i=0; i<g->size; ++i){
 		re->elements.vertex_dest.w = vertex_radius*2;
@@ -101,9 +101,10 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 				);
 				re->elements.edge_dest.h = 50;
 				/*rotate center*/
-				SDL_Point center = (SDL_Point){g->v_pos_x[i], g->v_pos_y[i]};
+				SDL_Point center = (SDL_Point){0, 25};
 				/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
-				float angle = -tan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180/3.1415926;
+				//float angle = -tan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180/3.1415926;
+				float angle = counter;
 				printf(
 					"%d,%d,%d,%d | %d,%d | %f\n",
 					re->elements.edge_dest.x, re->elements.edge_dest.y, re->elements.edge_dest.w, re->elements.edge_dest.h,
@@ -115,6 +116,7 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 		}
 	}
 	SDL_RenderPresent(re->renderer);
+	++counter;
 }
 
 
