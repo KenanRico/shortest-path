@@ -74,25 +74,19 @@ float slope(Graph const * g, int v1, int v2){
 
 #include <stdio.h>
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
-	static int counter = 0;
 	SDL_RenderClear(re->renderer);
+	/* render vertices */
 	for(int i=0; i<g->size; ++i){
 		re->elements.vertex_dest.w = vertex_radius*2;
 		re->elements.vertex_dest.h = vertex_radius*2;
 		re->elements.vertex_dest.x = g->v_pos_x[i]-vertex_radius;
 		re->elements.vertex_dest.y = g->v_pos_y[i]-vertex_radius;
 		SDL_RenderCopyEx(re->renderer, re->elements.vertex, &re->elements.vertex_src, &re->elements.vertex_dest, 0.0f, NULL, SDL_FLIP_NONE);
+	}
+	/* render egdes */
+	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
-			/*edge render placeholder*/
-			if(g->graph[i][j]){
-				/*
-				re->elements.edge_dest.x = _MIN(g->v_pos_x[i], g->v_pos_x[j]);
-				re->elements.edge_dest.y = _MIN(g->v_pos_y[i], g->v_pos_y[j]);
-				re->elements.edge_dest.w = abs(g->v_pos_x[i]-g->v_pos_x[j]);
-				re->elements.edge_dest.h = abs(g->v_pos_y[i]-g->v_pos_y[j]);
-				SDL_RendererFlip flip = (slope(g,i,j)<0) ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE;
-				*/
-				/*compute dest rect*/
+			if(g->graph[i][j] && g->v_pos_x[i]<g->v_pos_x[j]){
 				re->elements.edge_dest.w = sqrt(
 					(g->v_pos_x[i]-g->v_pos_x[j])*(g->v_pos_x[i]-g->v_pos_x[j]) +
 					(g->v_pos_y[i]-g->v_pos_y[j])*(g->v_pos_y[i]-g->v_pos_y[j])
@@ -103,20 +97,13 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 				/*rotate center*/
 				SDL_Point center = (SDL_Point){0, re->elements.edge_dest.h/2};
 				/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
-				float angle = -tan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180/3.1415926;
+				float angle = -atan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180.0f/3.1415926f;
 				//float angle = counter;
-				printf(
-					"%d,%d,%d,%d | %d,%d | %f\n",
-					re->elements.edge_dest.x, re->elements.edge_dest.y, re->elements.edge_dest.w, re->elements.edge_dest.h,
-					center.x, center.y,
-					angle
-				);
 				SDL_RenderCopyEx(re->renderer, re->elements.edge, &re->elements.edge_src, &re->elements.edge_dest, angle, &center, SDL_FLIP_NONE);
 			}
 		}
 	}
 	SDL_RenderPresent(re->renderer);
-	++counter;
 }
 
 
