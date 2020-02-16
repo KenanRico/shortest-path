@@ -37,7 +37,7 @@ void re_init(RenderEnvironment* re){
 	SDL_SetRenderDrawColor(re->renderer, 240, 240, 240, 255);
 
 	/*load vertex texture*/
-	SDL_Surface* surf = IMG_Load("assets/vertex.png");
+	SDL_Surface* surf = IMG_Load("assets/house.png");
 	if(surf==NULL){
 		*re->state |= BAD_IMAGE;
 		return;
@@ -50,7 +50,7 @@ void re_init(RenderEnvironment* re){
 		re->elements.vertex_src = (SDL_Rect){0,0,w,h};
 	}
 	/*load edge texture*/
-	surf = IMG_Load("assets/edge.png");
+	surf = IMG_Load("assets/road.png");
 	if(surf==NULL){
 		*re->state |= BAD_IMAGE;
 		return;
@@ -90,14 +90,6 @@ void SetWeightLocation(int x0, int y0, int x1, int y1, SDL_Rect* rect){
 }
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 	SDL_RenderClear(re->renderer);
-	/* render vertices */
-	for(int i=0; i<g->size; ++i){
-		re->elements.vertex_dest.w = vertex_radius*2;
-		re->elements.vertex_dest.h = vertex_radius*2;
-		re->elements.vertex_dest.x = g->v_pos_x[i]-vertex_radius;
-		re->elements.vertex_dest.y = g->v_pos_y[i]-vertex_radius;
-		SDL_RenderCopyEx(re->renderer, re->elements.vertex, &re->elements.vertex_src, &re->elements.vertex_dest, 0.0f, NULL, SDL_FLIP_NONE);
-	}
 	/* render egdes */
 	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
@@ -118,9 +110,17 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 			}
 		}
 	}
+	/* render vertices */
+	for(int i=0; i<g->size; ++i){
+		re->elements.vertex_dest.w = vertex_radius*2;
+		re->elements.vertex_dest.h = vertex_radius*2;
+		re->elements.vertex_dest.x = g->v_pos_x[i]-vertex_radius;
+		re->elements.vertex_dest.y = g->v_pos_y[i]-vertex_radius;
+		SDL_RenderCopyEx(re->renderer, re->elements.vertex, &re->elements.vertex_src, &re->elements.vertex_dest, 0.0f, NULL, SDL_FLIP_NONE);
+	}
 	/*render weight values*/
 	TTF_Font* font = TTF_OpenFont("Fonts/Mario-Kart-DS.ttf", 18);
-	SDL_Color color = {50, 50, 50};
+	SDL_Color color = {150, 50, 50};
 	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
 			if(g->graph[i][j]>0){

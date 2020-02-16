@@ -10,7 +10,8 @@
 
 #define OK 0x0
 #define TOO_MANY_VERTICES 0x1
-#define VERTEX_RELATIVE_RADIUS 0.03f
+
+#define VERTEX_RELATIVE_RADIUS 0.1f
 
 #define MINDIM(a,b) (((a)<(b))?(a):(b))
 
@@ -50,8 +51,12 @@ void g_update(Graph* g, EventHandler const * eh){
 			if(g->first_v_in_edge==-1){
 				g->first_v_in_edge = vertex;
 			}else{
-				g->graph[g->first_v_in_edge][vertex] = 100; //100 is placeholder edge weight
-				g->graph[vertex][g->first_v_in_edge] = 100; //100 is placeholder edge weight
+				int dist = sqrt(
+					(g->v_pos_x[g->first_v_in_edge]-g->v_pos_x[vertex])*(g->v_pos_x[g->first_v_in_edge]-g->v_pos_x[vertex])+
+					(g->v_pos_y[g->first_v_in_edge]-g->v_pos_y[vertex])*(g->v_pos_y[g->first_v_in_edge]-g->v_pos_y[vertex])
+				);
+				g->graph[g->first_v_in_edge][vertex] = dist; //100 is placeholder edge weight
+				g->graph[vertex][g->first_v_in_edge] = dist; //100 is placeholder edge weight
 				g->first_v_in_edge = -1;
 			}
 		}
