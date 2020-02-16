@@ -4,11 +4,16 @@
 #include "eventhandler.h"
 #include "graph.h"
 #include "states.h"
+#include "system.h"
 
 #include <stdio.h>
 
 
 void DEV(){
+
+	if(InitSystem()==0){
+		exit(1);
+	}
 
 	RenderEnvironment box;
 	re_init(&box);
@@ -31,4 +36,6 @@ void DEV(){
 	re_free(&box);
 	eh_free(&events);
 	g_free(&graph);
+
+	DestroySystem();
 }

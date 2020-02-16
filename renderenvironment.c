@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
 
 #define OK 0
@@ -61,6 +62,7 @@ void re_init(RenderEnvironment* re){
 		SDL_QueryTexture(re->elements.edge, NULL, NULL, &w, &h);
 		re->elements.edge_src = (SDL_Rect){0,0,w,h};
 	}
+	
 }
 
 
@@ -72,7 +74,20 @@ float slope(Graph const * g, int v1, int v2){
 	return (float)(g->v_pos_y[v1]-g->v_pos_y[v2]) / (float)(g->v_pos_x[v1]-g->v_pos_x[v2]);
 }
 
-#include <stdio.h>
+void SetWeightText(TTF_Font* font, SDL_Color color, SDL_Renderer* renderer, int weight, SDL_Texture** tex){
+	char str[8];
+	int len = 7;
+	snprintf(str, len, "%d", weight);
+	SDL_Surface* sm = TTF_RenderText_Solid(font, str, color);
+	*tex = SDL_CreateTextureFromSurface(renderer, sm);
+	SDL_FreeSurface(sm);
+}
+void SetWeightLocation(int x0, int y0, int x1, int y1, SDL_Rect* rect){
+	rect->w = 50;
+	rect->h = 20;
+	rect->x = (x0+x1)/2-rect->w/2;
+	rect->y = (y0+y1)/2-rect->h/2;
+}
 void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 	SDL_RenderClear(re->renderer);
 	/* render vertices */
@@ -103,6 +118,24 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 			}
 		}
 	}
+	/*render weight values*/
+	TTF_Font* font = TTF_OpenFont("Fonts/Mario-Kart-DS.ttf", 18);
+	SDL_Color color = {50, 50, 50};
+	for(int i=0; i<g->size; ++i){
+		for(int j=0; j<g->size; ++j){
+			if(g->graph[i][j]>0){
+				SDL_Texture* weight_text = NULL;
+				SetWeightText(font, color, re->renderer, g->graph[i][j], &weight_text);
+				SDL_Rect rect;
+				SetWeightLocation(g->v_pos_x[i], g->v_pos_y[i], g->v_pos_x[j], g->v_pos_y[j], &rect);
+				SDL_RenderCopy(re->renderer, weight_text, NULL, &rect);
+				SDL_DestroyTexture(weight_text);
+
+			}
+		}
+	}
+
+
 	SDL_RenderPresent(re->renderer);
 }
 
