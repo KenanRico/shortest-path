@@ -12,6 +12,7 @@ typedef struct EventHandler{
 	float mouse_y;
 	_Bool mouse_clicked;
 	_Bool mouse_held;
+	_Bool enter_pressed;
 	uint32_t* state;
 } EventHandler;
 

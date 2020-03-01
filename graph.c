@@ -63,6 +63,10 @@ void g_update(Graph* g, EventHandler const * eh){
 	}else if(eh->mouse_held){
 		//?
 	}
+
+	if(eh->enter_pressed){
+		g->constructing = 1;
+	}
 }
 
 int g_select_vertex(int x, int y, Graph const * g){

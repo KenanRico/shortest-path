@@ -2,7 +2,7 @@
 CC := gcc
 
 #IO FILES
-SRC := *.c
+SRC := *.c algo/*.c
 TARGET := dijkstra.exe
 
 #Flags

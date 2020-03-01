@@ -5,6 +5,7 @@
 #include "graph.h"
 #include "states.h"
 #include "system.h"
+#include "path.h"
 
 #include <stdio.h>
 
@@ -24,11 +25,22 @@ void DEV(){
 	Graph graph;
 	g_init(&graph);
 	
-	while((states[RENDER]|states[EVENTS]|states[GRAPH])==0){
+	Path path;
+	p_init(&path);
+	
+	while(states_healthy()){
 		eh_update(&events);
 		re_update(&box);
 		if(!graph.constructing){
 			g_update(&graph, &events);
+		}else{
+			p_select_endpoints(events.mouse_clicked, events.mouse_x, events.mouse_y, graph.v_pos_x, graph.v_pos_y, graph.size, &path);
+			if(path.endpoints_selected){
+				p_find_minimum(graph.graph, graph.size, &path);
+				printf("shortest is %d\n", path.dist);
+				p_reset(&path);
+				graph.constructing = 0;
+			}
 		}
 		re_render(&box, &events, &graph);
 	}

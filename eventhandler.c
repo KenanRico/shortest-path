@@ -15,10 +15,12 @@ void eh_init(EventHandler* eh){
 	eh->mouse_clicked = 0;
 	eh->mouse_held = 0;
 	eh->state = &states[EVENTS];
+	eh->enter_pressed = 0;
 }
 
 void eh_update(EventHandler* eh){
 	eh->mouse_clicked = 0;
+	eh->enter_pressed = 0;
 	if(SDL_PollEvent(&eh->event)){
 		switch(eh->event.type){
 			case SDL_QUIT:
@@ -35,6 +37,11 @@ void eh_update(EventHandler* eh){
 			case SDL_MOUSEBUTTONUP:
 				eh->mouse_held = 0;
 				break;
+			case SDL_KEYDOWN:
+				if(eh->event.key.keysym.sym==SDLK_RETURN){
+					eh->enter_pressed = 1;
+					printf("enter pressed\n");
+				}
 			default:
 				break;
 		}
