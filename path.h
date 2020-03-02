@@ -1,14 +1,12 @@
 #ifndef PATH_H
 #define PATH_H
 
-#include "stdint.h"
+#include <stdint.h>
 
 typedef struct{
 	int dist;
 	int src_v;
 	int dest_v;
-
-	_Bool endpoints_selected;
 	uint32_t* state;
 } Path;
 

@@ -14,7 +14,6 @@ typedef struct Graph{
 	float v_pos_x[MAX_VERTEX_COUNT];
 	float v_pos_y[MAX_VERTEX_COUNT];
 	int first_v_in_edge;
-	_Bool constructing;
 	uint32_t* state;
 } Graph;
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 uint32_t states[16] = {0};
+uint8_t phase = BUILD_MAP;
 
 _Bool states_healthy(){
 	if(

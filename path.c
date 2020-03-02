@@ -1,6 +1,7 @@
 #include "path.h"
 #include "states.h"
 #include "graph.h"
+#include "states.h"
 
 #include "algo/dijkstra.h"
 
@@ -17,7 +18,6 @@ void p_reset(Path* p){
 	p->dist = 0;
 	p->src_v = -1;
 	p->dest_v = -1;
-	p->endpoints_selected = 0;
 }
 
 void p_select_endpoints(_Bool clicked, int x, int y, float const * px, float const * py, int size, Path* p){
@@ -28,7 +28,7 @@ void p_select_endpoints(_Bool clicked, int x, int y, float const * px, float con
 			);
 			if (distance<vertex_radius){
 				if(p->src_v==-1) p->src_v = i;
-				else { p->dest_v = i; p->endpoints_selected = 1; }
+				else { p->dest_v = i; phase=FIND_SHORTEST_PATH; }
 				break;
 			}
 		}

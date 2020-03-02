@@ -28,7 +28,6 @@ void g_init(Graph* g){
 	memset(g->v_pos_y, 0, sizeof(int)*MAX_VERTEX_COUNT);
 	g->size = 0;
 	g->state = &states[GRAPH];
-	g->constructing = 0;
 	g->first_v_in_edge = -1;
 }
 
@@ -65,7 +64,7 @@ void g_update(Graph* g, EventHandler const * eh){
 	}
 
 	if(eh->enter_pressed){
-		g->constructing = 1;
+		phase = SET_ENDPOINTS;
 	}
 }
 
