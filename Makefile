@@ -2,7 +2,8 @@
 CC := gcc
 
 #IO FILES
-SRC := *.c algo/*.c
+SRCDIR := src
+SRC := $(SRCDIR)/*.c $(SRCDIR)/algo/*.c
 TARGET := dijkstra.exe
 
 #Flags

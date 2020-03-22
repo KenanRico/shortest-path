@@ -1,0 +1,27 @@
+#include "dijkstra.h"
+
+#include <math.h>
+#include <stdio.h>
+
+
+
+int main(void){
+  int mat[] = {
+    0,0,0,0,50,10,0,
+    0,0,12,0,4,0,0,
+    0,12,0,0,0,0,30,
+    0,0,0,0,17,62,95,
+    50,4,0,17,0,0,0,
+    10,0,0,62,0,0,182,
+    0,0,30,95,0,182,0
+  };
+  int n_nodes = (int)sqrt(sizeof(mat)/sizeof(int));
+
+	int shortest = Dijkstra(mat, n_nodes, 0, 6);
+
+
+	printf("%d\n", shortest);
+
+	return 0;
+  
+}

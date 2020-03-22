@@ -39,10 +39,10 @@ void re_init(RenderEnvironment* re){
 	SDL_SetRenderDrawColor(re->renderer, 240, 240, 240, 255);
 
 	/*init render units*/
-	ru_init(&re->elements.vertex, re->renderer, "assets/house.png");
-	ru_init(&re->elements.edge, re->renderer, "assets/road.png");
-	ru_init(&re->elements.sp_vertex, re->renderer, "assets/vertex.png");
-	ru_init(&re->elements.sp_edge, re->renderer, "assets/edge.png");
+	ru_init(&re->elements.vertex, re->renderer, "../assets/house.png");
+	ru_init(&re->elements.edge, re->renderer, "../assets/road.png");
+	ru_init(&re->elements.sp_vertex, re->renderer, "../assets/vertex.png");
+	ru_init(&re->elements.sp_edge, re->renderer, "../assets/edge.png");
 	
 }
 
@@ -106,7 +106,7 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g, 
 		RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.vertex, re->renderer);
 	}
 	/*render weight values*/
-	TTF_Font* font = TTF_OpenFont("Fonts/Mario-Kart-DS.ttf", 18); //need better management for this to avoid repeated allocation
+	TTF_Font* font = TTF_OpenFont("../assets/Fonts/Mario-Kart-DS.ttf", 18); //need better management for this to avoid repeated allocation
 	SDL_Color color = {150, 50, 50};
 	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
