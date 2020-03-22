@@ -1,5 +1,7 @@
 #include "renderenvironment.h"
 #include "states.h"
+#include "renderunit.h"
+#include "pair.h"
 
 #include "SDL2headers.h"
 
@@ -36,32 +38,11 @@ void re_init(RenderEnvironment* re){
 	}
 	SDL_SetRenderDrawColor(re->renderer, 240, 240, 240, 255);
 
-	/*load vertex texture*/
-	SDL_Surface* surf = IMG_Load("assets/house.png");
-	if(surf==NULL){
-		*re->state |= BAD_IMAGE;
-		return;
-	}
-	re->elements.vertex = SDL_CreateTextureFromSurface(re->renderer, surf);
-	SDL_FreeSurface(surf);
-	{
-		int w, h = 0;
-		SDL_QueryTexture(re->elements.vertex, NULL, NULL, &w, &h);
-		re->elements.vertex_src = (SDL_Rect){0,0,w,h};
-	}
-	/*load edge texture*/
-	surf = IMG_Load("assets/road.png");
-	if(surf==NULL){
-		*re->state |= BAD_IMAGE;
-		return;
-	}
-	re->elements.edge = SDL_CreateTextureFromSurface(re->renderer, surf);
-	SDL_FreeSurface(surf);
-	{
-		int w, h = 0;
-		SDL_QueryTexture(re->elements.edge, NULL, NULL, &w, &h);
-		re->elements.edge_src = (SDL_Rect){0,0,w,h};
-	}
+	/*init render units*/
+	ru_init(&re->elements.vertex, re->renderer, "assets/house.png");
+	ru_init(&re->elements.edge, re->renderer, "assets/road.png");
+	ru_init(&re->elements.sp_vertex, re->renderer, "assets/vertex.png");
+	ru_init(&re->elements.sp_edge, re->renderer, "assets/edge.png");
 	
 }
 
@@ -88,38 +69,44 @@ void SetWeightLocation(int x0, int y0, int x1, int y1, SDL_Rect* rect){
 	rect->x = (x0+x1)/2-rect->w/2;
 	rect->y = (y0+y1)/2-rect->h/2;
 }
-void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
+void RenderEdge(int i, int j, float const * pos_x, float const * pos_y, RenderUnit* edge, SDL_Renderer* renderer){
+	edge->destrect.w = sqrt(
+		(pos_x[i]-pos_x[j])*(pos_x[i]-pos_x[j]) +
+		(pos_y[i]-pos_y[j])*(pos_y[i]-pos_y[j])
+	);
+	edge->destrect.h = 100;
+	edge->destrect.x = pos_x[i];
+	edge->destrect.y = pos_y[i]-edge->destrect.h/2;
+	/*rotate center*/
+	SDL_Point center = (SDL_Point){0, edge->destrect.h/2};
+	/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
+	float angle = -atan((float)(pos_y[i]-pos_y[j])/(float)(pos_x[j]-pos_x[i]))*180.0f/3.1415926f;
+	//float angle = counter;
+	SDL_RenderCopyEx(renderer, edge->texture, &edge->srcrect, &edge->destrect, angle, &center, SDL_FLIP_NONE);
+}
+void RenderVertex(int i, float const * pos_x, float const * pos_y, RenderUnit* vertex, SDL_Renderer* renderer){
+	vertex->destrect.w = vertex_radius*2;
+	vertex->destrect.h = vertex_radius*2;
+	vertex->destrect.x = pos_x[i]-vertex_radius;
+	vertex->destrect.y = pos_y[i]-vertex_radius;
+	SDL_RenderCopyEx(renderer, vertex->texture, &vertex->srcrect, &vertex->destrect, 0.0f, NULL, SDL_FLIP_NONE);
+}
+void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g, Pair const * jumps, int render_size){
 	SDL_RenderClear(re->renderer);
 	/* render egdes */
 	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
 			if(g->graph[i][j] && g->v_pos_x[i]<g->v_pos_x[j]){
-				re->elements.edge_dest.w = sqrt(
-					(g->v_pos_x[i]-g->v_pos_x[j])*(g->v_pos_x[i]-g->v_pos_x[j]) +
-					(g->v_pos_y[i]-g->v_pos_y[j])*(g->v_pos_y[i]-g->v_pos_y[j])
-				);
-				re->elements.edge_dest.h = 100;
-				re->elements.edge_dest.x = g->v_pos_x[i];
-				re->elements.edge_dest.y = g->v_pos_y[i]-re->elements.edge_dest.h/2;
-				/*rotate center*/
-				SDL_Point center = (SDL_Point){0, re->elements.edge_dest.h/2};
-				/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
-				float angle = -atan((float)(g->v_pos_y[i]-g->v_pos_y[j])/(float)(g->v_pos_x[j]-g->v_pos_x[i]))*180.0f/3.1415926f;
-				//float angle = counter;
-				SDL_RenderCopyEx(re->renderer, re->elements.edge, &re->elements.edge_src, &re->elements.edge_dest, angle, &center, SDL_FLIP_NONE);
+				RenderEdge(i, j, g->v_pos_x, g->v_pos_y, &re->elements.edge, re->renderer);
 			}
 		}
 	}
 	/* render vertices */
 	for(int i=0; i<g->size; ++i){
-		re->elements.vertex_dest.w = vertex_radius*2;
-		re->elements.vertex_dest.h = vertex_radius*2;
-		re->elements.vertex_dest.x = g->v_pos_x[i]-vertex_radius;
-		re->elements.vertex_dest.y = g->v_pos_y[i]-vertex_radius;
-		SDL_RenderCopyEx(re->renderer, re->elements.vertex, &re->elements.vertex_src, &re->elements.vertex_dest, 0.0f, NULL, SDL_FLIP_NONE);
+		RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.vertex, re->renderer);
 	}
 	/*render weight values*/
-	TTF_Font* font = TTF_OpenFont("Fonts/Mario-Kart-DS.ttf", 18);
+	TTF_Font* font = TTF_OpenFont("Fonts/Mario-Kart-DS.ttf", 18); //need better management for this to avoid repeated allocation
 	SDL_Color color = {150, 50, 50};
 	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
@@ -134,7 +121,14 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 			}
 		}
 	}
+	TTF_CloseFont(font);
 
+	/*render shortest path*/
+	for(int i=0; i<render_size; ++i){
+		RenderEdge(jumps[i].v1, jumps[i].v2, g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer);
+		RenderVertex(jumps[i].v1, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+		RenderVertex(jumps[i].v2, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+	}
 
 	SDL_RenderPresent(re->renderer);
 }
@@ -143,6 +137,8 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g){
 void re_free(RenderEnvironment* re){
 	SDL_DestroyWindow(re->window);
 	SDL_DestroyRenderer(re->renderer);
-	SDL_DestroyTexture(re->elements.vertex);
-	SDL_DestroyTexture(re->elements.edge);
+	ru_free(&re->elements.vertex);
+	ru_free(&re->elements.edge);
+	ru_free(&re->elements.sp_vertex);
+	ru_free(&re->elements.sp_edge);
 }

@@ -26,7 +26,7 @@ void DEV(){
 	g_init(&graph);
 	
 	Path path;
-	p_init(&path);
+	p_init(&path, graph.size);
 	
 	while(states_healthy()){
 		eh_update(&events);
@@ -41,13 +41,16 @@ void DEV(){
 			case FIND_SHORTEST_PATH:
 				p_find_minimum(graph.graph, graph.size, &path);
 				printf("shortest is %d\n", path.dist);
-				p_reset(&path);
-				phase = BUILD_MAP; //put this in func
+				break;
 			case ANIMATE_PATH:
+				p_draw_path(&path);
+				if(path.render_size==path.size){
+					p_reset(&path);
+				}
 			default:
 				break;
 		}
-		re_render(&box, &events, &graph);
+		re_render(&box, &events, &graph, path.jumps, path.render_size);
 	}
 
 	re_free(&box);

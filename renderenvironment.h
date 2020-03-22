@@ -4,10 +4,16 @@
 #include "SDL2headers.h"
 #include "eventhandler.h"
 #include "graph.h"
+#include "renderunit.h"
+#include "pair.h"
 
 typedef struct Elements{
-	SDL_Texture* vertex; SDL_Rect vertex_src; SDL_Rect vertex_dest; 
-	SDL_Texture* edge; SDL_Rect edge_src; SDL_Rect edge_dest; 
+	/*G=(V,E)*/
+	RenderUnit vertex;
+	RenderUnit edge;
+	/*SP = shortest(G)*/
+	RenderUnit sp_vertex;
+	RenderUnit sp_edge;
 } Elements;
 
 typedef struct RenderEnvironment{
@@ -23,7 +29,7 @@ extern int window_height;
 
 void re_init(RenderEnvironment*);
 void re_update(RenderEnvironment*);
-void re_render(RenderEnvironment*, EventHandler const *, Graph const *);
+void re_render(RenderEnvironment*, EventHandler const *, Graph const *, Pair const *, int);
 void re_free(RenderEnvironment*);
 
 #endif
