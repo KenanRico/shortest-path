@@ -5,7 +5,6 @@
 #include "eventhandler.h"
 #include "graph.h"
 #include "renderunit.h"
-#include "pair.h"
 
 typedef struct Elements{
 	/*G=(V,E)*/
@@ -29,7 +28,7 @@ extern int window_height;
 
 void re_init(RenderEnvironment*);
 void re_update(RenderEnvironment*);
-void re_render(RenderEnvironment*, EventHandler const *, Graph const *, Pair const *, int);
+void re_render(RenderEnvironment*, EventHandler const *, Graph const *, int const *, int, int);
 void re_free(RenderEnvironment*);
 
 #endif

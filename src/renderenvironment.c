@@ -1,13 +1,13 @@
 #include "renderenvironment.h"
 #include "states.h"
 #include "renderunit.h"
-#include "pair.h"
 
 #include "SDL2headers.h"
 
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <unistd.h>
 
 
 #define OK 0
@@ -69,7 +69,13 @@ void SetWeightLocation(int x0, int y0, int x1, int y1, SDL_Rect* rect){
 	rect->x = (x0+x1)/2-rect->w/2;
 	rect->y = (y0+y1)/2-rect->h/2;
 }
-void RenderEdge(int i, int j, float const * pos_x, float const * pos_y, RenderUnit* edge, SDL_Renderer* renderer){
+void RenderEdge(int _i, int _j, float const * pos_x, float const * pos_y, RenderUnit* edge, SDL_Renderer* renderer){
+	int i = _i;
+	int j = _j;
+	if(pos_x[_i]>pos_x[_j]){
+		i = _j;
+		j = _i;
+	}
 	edge->destrect.w = sqrt(
 		(pos_x[i]-pos_x[j])*(pos_x[i]-pos_x[j]) +
 		(pos_y[i]-pos_y[j])*(pos_y[i]-pos_y[j])
@@ -91,7 +97,7 @@ void RenderVertex(int i, float const * pos_x, float const * pos_y, RenderUnit* v
 	vertex->destrect.y = pos_y[i]-vertex_radius;
 	SDL_RenderCopyEx(renderer, vertex->texture, &vertex->srcrect, &vertex->destrect, 0.0f, NULL, SDL_FLIP_NONE);
 }
-void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g, Pair const * jumps, int render_size){
+void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g, int const * jumps, int src_v, int dest_v){
 	SDL_RenderClear(re->renderer);
 	/* render egdes */
 	for(int i=0; i<g->size; ++i){
@@ -117,20 +123,25 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g, 
 				SetWeightLocation(g->v_pos_x[i], g->v_pos_y[i], g->v_pos_x[j], g->v_pos_y[j], &rect);
 				SDL_RenderCopy(re->renderer, weight_text, NULL, &rect);
 				SDL_DestroyTexture(weight_text);
-
 			}
 		}
 	}
 	TTF_CloseFont(font);
 
 	/*render shortest path*/
-	for(int i=0; i<render_size; ++i){
-		RenderEdge(jumps[i].v1, jumps[i].v2, g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer);
-		RenderVertex(jumps[i].v1, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
-		RenderVertex(jumps[i].v2, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+	if(phase==MIN_PATH_FOUND){
+		int i = dest_v;
+		while(1){
+			RenderEdge(jumps[i], i, g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer);
+			RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+			RenderVertex(jumps[i], g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+			i = jumps[i];
+			if(i==src_v) break;
+		}
 	}
 
 	SDL_RenderPresent(re->renderer);
+	if(phase==MIN_PATH_FOUND) sleep(5);
 }
 
 

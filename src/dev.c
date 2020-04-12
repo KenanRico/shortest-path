@@ -6,6 +6,7 @@
 #include "states.h"
 #include "system.h"
 #include "path.h"
+#include "debug.h"
 
 #include <stdio.h>
 
@@ -42,15 +43,13 @@ void DEV(){
 				p_find_minimum(graph.graph, graph.size, &path);
 				printf("shortest is %d\n", path.dist);
 				break;
-			case ANIMATE_PATH:
-				p_draw_path(&path);
-				if(path.render_size==path.size){
-					p_reset(&path);
-				}
+			case MIN_PATH_FOUND:
+				p_reset(&path);
+				break;
 			default:
 				break;
 		}
-		re_render(&box, &events, &graph, path.jumps, path.render_size);
+		re_render(&box, &events, &graph, path.jumps, path.src_v, path.dest_v);
 	}
 
 	re_free(&box);

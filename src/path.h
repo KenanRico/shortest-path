@@ -2,13 +2,12 @@
 #define PATH_H
 
 #include "renderunit.h"
-#include "pair.h"
 
 #include <stdint.h>
 
 typedef struct{
 	int dist;
-	Pair* jumps; int jumps_cap; int size; int render_size;
+	int* jumps; int size;
 	int src_v; int dest_v;
 	uint32_t* state;
 } Path;

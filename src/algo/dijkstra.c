@@ -10,7 +10,10 @@
 #define MIN(x,y) (((x)<(y))?(x):(y))
 
 
-int DijCommonPath(_Graph* graph, int s, int t){
+#include <stdio.h>
+
+
+int DijCommonPath(_Graph* graph, int s, int t, int* jumps, int* size){
 	int* distance = malloc(sizeof(int)*graph->V);
 	for(int i=0; i<graph->V; ++i){
 		distance[i] = -1;
@@ -22,8 +25,7 @@ int DijCommonPath(_Graph* graph, int s, int t){
 	int curr = Pop(&known, distance);
 	int* dest = malloc(sizeof(int)*graph->V);
 	int* weight = malloc(sizeof(int)*graph->V);
-	unsigned char* popped = malloc(sizeof(unsigned char)*graph->V);
-	memset(popped, 0, graph->V);
+	unsigned char* popped = calloc(graph->V, sizeof(unsigned char));
 	/*optimize*/
 	while(curr!=t){
 		popped[curr] = 1;
@@ -34,13 +36,19 @@ int DijCommonPath(_Graph* graph, int s, int t){
 				AddTo(&known, dest[i]);
 				if(distance[dest[i]]==-1){
 					distance[dest[i]] = distance[curr] + weight[i];
+					jumps[dest[i]] = curr;
 				}else{
-					distance[dest[i]] = MIN(distance[dest[i]], distance[curr]+weight[i]); 
+					//distance[dest[i]] = MIN(distance[dest[i]], distance[curr]+weight[i]); 
+					if(distance[curr]+weight[i] < distance[dest[i]]){
+						distance[dest[i]] = distance[curr]+weight[i];
+						jumps[dest[i]] = curr;
+					}
 				}
 			}
 		}
 		curr = Pop(&known, distance);
 	}
+
 	free(dest);
 	free(weight);
 	free(popped);
@@ -56,15 +64,15 @@ int DijCommonPath(_Graph* graph, int s, int t){
 }
 
 
-int Dijkstra(int const * adj_mat, int n_nodes, int s, int t){
+int Dijkstra(int const * adj_mat, int n_nodes, int s, int t, int* jumps, int* size){
 	_Graph graph = {NULL, 0, 0};
 	CreateGraph(&graph, adj_mat, n_nodes);
-	return DijCommonPath(&graph, s, t);
+	return DijCommonPath(&graph, s, t, jumps, size);
 }
 
 
-int Dijkstra2D(int const * const * adj_mat, int n_nodes, int s, int t){
+int Dijkstra2D(int const * const * adj_mat, int n_nodes, int s, int t, int* jumps, int* size){
 	_Graph graph = {NULL, 0, 0};
 	CreateGraph2D(&graph, adj_mat, n_nodes);
-	return DijCommonPath(&graph, s, t);
+	return DijCommonPath(&graph, s, t, jumps, size);
 }
