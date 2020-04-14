@@ -34,9 +34,11 @@ void p_reset(Path* p){
 	phase=BUILD_MAP;
 }
 
-#include <stdio.h>
-void p_select_endpoints(_Bool clicked, int x, int y, float const * px, float const * py, int size, Path* p){
-	if(clicked){
+void p_select_endpoints(_Bool clicked, _Bool esc, int x, int y, float const * px, float const * py, int size, Path* p){
+	if(esc){
+		p_reset(p);
+		phase = BUILD_MAP;
+	}else if(clicked){
 		for(int i=0; i<size; ++i){
 			double distance = sqrt(
 				(x-px[i])*(x-px[i])+(y-py[i])*(y-py[i])

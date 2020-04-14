@@ -13,6 +13,7 @@ typedef struct EventHandler{
 	_Bool mouse_clicked;
 	_Bool mouse_held;
 	_Bool enter_pressed;
+	_Bool esc_pressed;
 	uint32_t* state;
 } EventHandler;
 

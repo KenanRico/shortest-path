@@ -37,7 +37,7 @@ void DEV(){
 				g_update(&graph, &events);
 				break;
 			case SET_ENDPOINTS:
-				p_select_endpoints(events.mouse_clicked, events.mouse_x, events.mouse_y, graph.v_pos_x, graph.v_pos_y, graph.size, &path);
+				p_select_endpoints(events.mouse_clicked, events.esc_pressed, events.mouse_x, events.mouse_y, graph.v_pos_x, graph.v_pos_y, graph.size, &path);
 				break;
 			case FIND_SHORTEST_PATH:
 				p_find_minimum(graph.graph, graph.size, &path);
