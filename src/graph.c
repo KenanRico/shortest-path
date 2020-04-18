@@ -11,7 +11,7 @@
 #define OK 0x0
 #define TOO_MANY_VERTICES 0x1
 
-#define VERTEX_RELATIVE_RADIUS 0.1f
+#define VERTEX_RELATIVE_RADIUS 0.04f
 
 #define MINDIM(a,b) (((a)<(b))?(a):(b))
 

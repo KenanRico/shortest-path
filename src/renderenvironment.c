@@ -28,15 +28,18 @@ void re_init(RenderEnvironment* re){
 	/*init window and renderer*/
 	if((re->window = SDL_CreateWindow(
 		"window 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window_width, window_height, SDL_WINDOW_RESIZABLE
-	)) == NULL){
+	)) != NULL){
+		SDL_MaximizeWindow(re->window);
+	}else{
 		*re->state |= BAD_WINDOW;
 		return;
 	}
+
 	if((re->renderer=SDL_CreateRenderer(re->window, -1, 0)) == NULL){
 		*re->state |= BAD_RENDERER;
 		return;
 	}
-	SDL_SetRenderDrawColor(re->renderer, 240, 240, 240, 255);
+	SDL_SetRenderDrawColor(re->renderer, 230, 240, 240, 255);
 
 	/*init render units*/
 	ru_init(&re->elements.vertex, re->renderer, "../assets/house.png");
