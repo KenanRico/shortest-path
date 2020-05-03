@@ -42,10 +42,11 @@ void re_init(RenderEnvironment* re){
 	SDL_SetRenderDrawColor(re->renderer, 230, 240, 240, 255);
 
 	/*init render units*/
-	ru_init(&re->elements.vertex, re->renderer, "../assets/house.png");
-	ru_init(&re->elements.edge, re->renderer, "../assets/road.png");
-	ru_init(&re->elements.sp_vertex, re->renderer, "../assets/vertex.png");
-	ru_init(&re->elements.sp_edge, re->renderer, "../assets/edge.png");
+	ru_init(&re->elements.vertex, re->renderer, "../assets/vertex.png");
+	ru_init(&re->elements.edge, re->renderer, "../assets/edge.png");
+	ru_init(&re->elements.sp_vertex, re->renderer, "../assets/spvertex.png");
+	ru_init(&re->elements.sp_edge, re->renderer, "../assets/spedge.png");
+	ru_init(&re->elements.sp_bad_vertex, re->renderer, "../assets/spbadvertex.png");
 	
 }
 
@@ -133,18 +134,23 @@ void re_render(RenderEnvironment* re, EventHandler const * eh, Graph const * g, 
 
 	/*render shortest path*/
 	if(phase==MIN_PATH_FOUND){
-		int i = dest_v;
-		while(1){
-			RenderEdge(jumps[i], i, g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer);
-			RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
-			RenderVertex(jumps[i], g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
-			i = jumps[i];
-			if(i==src_v) break;
+		if(jumps==NULL){
+			RenderVertex(src_v, g->v_pos_x, g->v_pos_y, &re->elements.sp_bad_vertex, re->renderer);
+			RenderVertex(dest_v, g->v_pos_x, g->v_pos_y, &re->elements.sp_bad_vertex, re->renderer);
+		}else{
+			int i = dest_v;
+			while(1){
+				RenderEdge(jumps[i], i, g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer);
+				RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+				RenderVertex(jumps[i], g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+				i = jumps[i];
+				if(i==src_v) break;
+			}
 		}
 	}
 
 	SDL_RenderPresent(re->renderer);
-	if(phase==MIN_PATH_FOUND) sleep(5);
+	if(phase==MIN_PATH_FOUND) sleep(3);
 }
 
 

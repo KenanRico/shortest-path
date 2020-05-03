@@ -13,6 +13,7 @@ typedef struct Elements{
 	/*SP = shortest(G)*/
 	RenderUnit sp_vertex;
 	RenderUnit sp_edge;
+	RenderUnit sp_bad_vertex;
 } Elements;
 
 typedef struct RenderEnvironment{

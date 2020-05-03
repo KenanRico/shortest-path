@@ -1,6 +1,7 @@
 #include "dijkstra.h"
 #include "known.h"
 #include "_graph.h"
+#include "connectqueue.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +11,37 @@
 #define MIN(x,y) (((x)<(y))?(x):(y))
 
 
-#include <stdio.h>
+_Bool Connected(int const * const * mat, int N, int s, int t){
+
+	_Bool connected = 0;
+
+	Queue bfs_q;
+	InitCQ(&bfs_q, N);
+
+	Queue visited_q;
+	InitCQ(&visited_q, N);
+
+	AddToCQ(&bfs_q, s);
+	while(!EmptyCQ(&bfs_q)){
+		int curr = PopCQ(&bfs_q);
+		AddToCQ(&visited_q, curr);
+		for(int i=0; i<N; ++i){
+			int const * row = mat[curr];
+			if(row[i]>0 && !FoundInCQ(&visited_q, i)){
+				if(i==t){
+					connected = 1;
+					goto END;
+				}
+				AddToCQ(&bfs_q, i);
+			}
+		}
+	}
+
+END:
+	FreeCQ(&bfs_q);
+	FreeCQ(&visited_q);
+	return connected;
+}
 
 
 int DijCommonPath(_Graph* graph, int s, int t, int* jumps, int* size){
@@ -19,7 +50,6 @@ int DijCommonPath(_Graph* graph, int s, int t, int* jumps, int* size){
 		distance[i] = -1;
 	}
 	distance[s] = 0;
-
 	KnownVertices known;
 	InitKnown(&known, graph->V, s);
 	int curr = Pop(&known, distance);
@@ -72,6 +102,9 @@ int Dijkstra(int const * adj_mat, int n_nodes, int s, int t, int* jumps, int* si
 
 
 int Dijkstra2D(int const * const * adj_mat, int n_nodes, int s, int t, int* jumps, int* size){
+	if(!Connected(adj_mat, n_nodes, s, t)){
+		return -1;
+	}
 	_Graph graph = {NULL, 0, 0};
 	CreateGraph2D(&graph, adj_mat, n_nodes);
 	return DijCommonPath(&graph, s, t, jumps, size);

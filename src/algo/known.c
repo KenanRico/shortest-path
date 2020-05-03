@@ -46,4 +46,3 @@ void FreeKnown(KnownVertices* known){
 	free(known->set);
 	known->set = NULL;
 }
-
