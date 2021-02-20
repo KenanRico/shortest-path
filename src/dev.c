@@ -9,6 +9,7 @@
 #include "debug.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 
 void DEV(){
@@ -32,6 +33,8 @@ void DEV(){
 	while(states_healthy()){
 		eh_update(&events);
 		re_update(&box);
+		re_clear(&box);
+		re_render_statics(&box, &events, &graph, path.jumps, path.src_v, path.dest_v);
 		switch(phase){
 			case BUILD_MAP:
 				g_update(&graph, &events);
@@ -44,13 +47,21 @@ void DEV(){
 				printf("shortest is %d\n", path.dist);
 				break;
 			case MIN_PATH_FOUND:
+				re_render_path(&box, &graph, path.jumps, path.src_v, path.dest_v);
+				break;
+			case WAIT_DRAW:
+				// do nothing
+				break;
+			case RESET_PATH:
 				p_reset(&path);
 				break;
 			default:
 				break;
 		}
-		re_render(&box, &events, &graph, path.jumps, path.src_v, path.dest_v);
+		re_draw(&box);
 	}
+
+	printf("uh oh...\n\n");
 
 	re_free(&box);
 	eh_free(&events);

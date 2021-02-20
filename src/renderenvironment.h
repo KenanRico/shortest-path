@@ -6,7 +6,9 @@
 #include "graph.h"
 #include "renderunit.h"
 
-typedef struct Elements{
+#include <pthread.h>
+
+typedef struct{
 	/*G=(V,E)*/
 	RenderUnit vertex;
 	RenderUnit edge;
@@ -16,11 +18,12 @@ typedef struct Elements{
 	RenderUnit sp_bad_vertex;
 } Elements;
 
-typedef struct RenderEnvironment{
+typedef struct{
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 	Elements elements;
 	uint32_t* state;
+	pthread_mutex_t renderer_lock;
 } RenderEnvironment;
 
 
@@ -29,7 +32,10 @@ extern int window_height;
 
 void re_init(RenderEnvironment*);
 void re_update(RenderEnvironment*);
-void re_render(RenderEnvironment*, EventHandler const *, Graph const *, int const *, int, int);
+void re_clear(RenderEnvironment*);
+void re_render_statics(RenderEnvironment*, EventHandler const *, Graph const *, int const *, int, int);
+void re_render_path(RenderEnvironment*, Graph const *, int const *, int, int);
+void re_draw(RenderEnvironment*);
 void re_free(RenderEnvironment*);
 
 #endif
