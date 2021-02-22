@@ -3,15 +3,21 @@
 An illustration of finding the shortest path between a pair of vertices.
 Shortest path uses dijkstra algorithm.
 
+---
+
 ## REQUIREMENT
 
 - SDL2 library
 - Currently project Makefile only supports GCC and Mingw
 
+---
+
 ## BUILD
+
 Configure `Makefile`
 - Point _INCL\_PATHS_ to include dir in SDL2 lib
 - Point _LIB\_PATHS_ to all static library paths for static loading
+
 Make sure the following dynamic lib are present in `bin` dir at runtime:
 - SDL2.dll
 - SDL2\_image.dll
@@ -25,4 +31,8 @@ Make sure the following dynamic lib are present in `bin` dir at runtime:
 - zlib1.dll
 
 ## DEMO
-![demo_gameplay](./demo/demo2.gif)
+
+![demo1](./demo/demo1.gif)
+
+with animation:
+![demo2](./demo/demo2.gif)
