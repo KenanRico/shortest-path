@@ -10,7 +10,7 @@
 #include <string.h>
 
 
-#define INCOMPLETE_END_PINTS 0x1
+#define INCOMPLETE_END_POINTS 0x1
 
 
 
@@ -52,7 +52,6 @@ void p_select_endpoints(_Bool clicked, _Bool esc, int x, int y, float const * px
 	}
 }
 
-#include <stdio.h>
 void p_find_minimum(int const * const * graph, int size, Path* p){
 	/*call dijkstra algo*/
 	if(p->src_v!=-1 && p->dest_v!=-1){
@@ -64,9 +63,9 @@ void p_find_minimum(int const * const * graph, int size, Path* p){
 			p->jumps = NULL;
 		}
 		//^ Also get jumps in shortest path
-		phase=MIN_PATH_FOUND;
+		phase = DRAW_PATH;
 	}else{
-		*p->state = INCOMPLETE_END_PINTS;
+		*p->state = INCOMPLETE_END_POINTS;
 	}
 }
 
