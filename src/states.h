@@ -6,7 +6,7 @@
 enum STATES { RENDER=0, EVENTS=1, GRAPH=2, PATH=3};
 extern uint32_t states[16];
 
-enum Phase {BUILD_MAP=0, SET_ENDPOINTS=1, FIND_SHORTEST_PATH=2, MIN_PATH_FOUND=3, WAIT_DRAW=4, RESET_PATH=5};
+enum Phase {BUILD_MAP=0, SET_ENDPOINTS=1, FIND_SHORTEST_PATH=2, DRAW_PATH=3, RESET_PATH=4};
 extern uint8_t phase;
 
 _Bool states_healthy();

@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
 
 
 void DEV(){
@@ -30,6 +31,7 @@ void DEV(){
 	Path path;
 	p_init(&path, graph.size);
 	
+	struct timespec t0;
 	while(states_healthy()){
 		eh_update(&events);
 		re_update(&box);
@@ -45,12 +47,14 @@ void DEV(){
 			case FIND_SHORTEST_PATH:
 				p_find_minimum(graph.graph, graph.size, &path);
 				printf("shortest is %d\n", path.dist);
+				clock_gettime(CLOCK_REALTIME, &t0);
 				break;
-			case MIN_PATH_FOUND:
-				re_render_path(&box, &graph, path.jumps, path.src_v, path.dest_v);
-				break;
-			case WAIT_DRAW:
-				// do nothing
+			case DRAW_PATH:
+				if(path.jumps==NULL){
+				    re_renderbadpath(&box, &graph, path.src_v, path.dest_v, &t0);
+				}else{
+				    re_rendergoodpath(&box, &graph, path.jumps, path.src_v, path.dest_v);
+				}
 				break;
 			case RESET_PATH:
 				p_reset(&path);

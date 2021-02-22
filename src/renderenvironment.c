@@ -8,7 +8,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <time.h>
 
 
@@ -50,7 +49,6 @@ void re_init(RenderEnvironment* re){
 	ru_init(&re->elements.sp_edge, re->renderer, "../assets/spedge.png");
 	ru_init(&re->elements.sp_bad_vertex, re->renderer, "../assets/spbadvertex.png");
 	
-	pthread_mutex_init(&(re->renderer_lock), NULL);
 }
 
 
@@ -76,7 +74,7 @@ void SetWeightLocation(int x0, int y0, int x1, int y1, SDL_Rect* rect){
 	rect->x = (x0+x1)/2-rect->w/2;
 	rect->y = (y0+y1)/2-rect->h/2;
 }
-void RenderEdge(int _i, int _j, float const * pos_x, float const * pos_y, RenderUnit* edge, SDL_Renderer* renderer, pthread_mutex_t* m){
+void RenderEdge(int _i, int _j, float const * pos_x, float const * pos_y, RenderUnit* edge, SDL_Renderer* renderer){
 	int i = _i;
 	int j = _j;
 	if(pos_x[_i]>pos_x[_j]){
@@ -95,24 +93,18 @@ void RenderEdge(int _i, int _j, float const * pos_x, float const * pos_y, Render
 	/*rotate angle; NOTE: flip the sign of dy to convert SDL coordinates to cartesian*/
 	float angle = -atan((float)(pos_y[i]-pos_y[j])/(float)(pos_x[j]-pos_x[i]))*180.0f/3.1415926f;
 	//float angle = counter;
-	pthread_mutex_lock(m);
 	SDL_RenderCopyEx(renderer, edge->texture, &edge->srcrect, &edge->destrect, angle, &center, SDL_FLIP_NONE);
-	pthread_mutex_unlock(m);
 }
-void RenderVertex(int i, float const * pos_x, float const * pos_y, RenderUnit* vertex, SDL_Renderer* renderer, pthread_mutex_t *m){
-	pthread_mutex_lock(m);
+void RenderVertex(int i, float const * pos_x, float const * pos_y, RenderUnit* vertex, SDL_Renderer* renderer){
 	vertex->destrect.w = vertex_radius*2;
 	vertex->destrect.h = vertex_radius*2;
 	vertex->destrect.x = pos_x[i]-vertex_radius;
 	vertex->destrect.y = pos_y[i]-vertex_radius;
 	SDL_RenderCopyEx(renderer, vertex->texture, &vertex->srcrect, &vertex->destrect, 0.0f, NULL, SDL_FLIP_NONE);
-	pthread_mutex_unlock(m);
 }
 
 void re_clear(RenderEnvironment* re){
-	pthread_mutex_lock(&(re->renderer_lock));
 	SDL_RenderClear(re->renderer);
-	pthread_mutex_unlock(&(re->renderer_lock));
 }
 
 void re_render_statics(RenderEnvironment* re, EventHandler const * eh, Graph const * g, int const * jumps, int src_v, int dest_v){
@@ -120,16 +112,15 @@ void re_render_statics(RenderEnvironment* re, EventHandler const * eh, Graph con
 	for(int i=0; i<g->size; ++i){
 		for(int j=0; j<g->size; ++j){
 			if(g->graph[i][j] && g->v_pos_x[i]<g->v_pos_x[j]){
-				RenderEdge(i, j, g->v_pos_x, g->v_pos_y, &re->elements.edge, re->renderer, &re->renderer_lock);
+				RenderEdge(i, j, g->v_pos_x, g->v_pos_y, &re->elements.edge, re->renderer);
 			}
 		}
 	}
 	/* render vertices */
 	for(int i=0; i<g->size; ++i){
-		RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.vertex, re->renderer, &re->renderer_lock);
+		RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.vertex, re->renderer);
 	}
 	/*render weight values*/
-	/*
 	TTF_Font* font = TTF_OpenFont("../assets/Fonts/Mario-Kart-DS.ttf", 18); //need better management for this to avoid repeated allocation
 	SDL_Color color = {150, 50, 50};
 	for(int i=0; i<g->size; ++i){
@@ -145,74 +136,54 @@ void re_render_statics(RenderEnvironment* re, EventHandler const * eh, Graph con
 		}
 	}
 	TTF_CloseFont(font);
-	*/
 }
 
 
-struct DrawPathData{
-    RenderEnvironment* re;
-    Graph const * g;
-    int const * jumps;
-    int src_v;
-    int dest_v;
-};
-
-void* draw_path(void* p){
-    RenderEnvironment* re = ((struct DrawPathData*)p)->re;
-    Graph const * g = ((struct DrawPathData*)p)->g;
-    int const * jumps = ((struct DrawPathData*)p)->jumps;
-    int src_v = ((struct DrawPathData*)p)->src_v;
-    int dest_v = ((struct DrawPathData*)p)->dest_v;
-    struct timespec t0;
-    clock_gettime(CLOCK_REALTIME, &t0);
-	if(jumps==NULL){
-	    while(1){
-		RenderVertex(src_v, g->v_pos_x, g->v_pos_y, &re->elements.sp_bad_vertex, re->renderer, &re->renderer_lock);
-		RenderVertex(dest_v, g->v_pos_x, g->v_pos_y, &re->elements.sp_bad_vertex, re->renderer, &re->renderer_lock);
-		struct timespec t1;
-		clock_gettime(CLOCK_REALTIME, &t1);
-		// if 5e9 ns (5s) has elapsed
-		if((t1.tv_sec-t0.tv_sec)*1e9+(t1.tv_nsec-t0.tv_nsec) > 5e9){
-		    break;
-		}
-	    }
-	} else {
-	    while(1){
-		int i = dest_v;
-		while(1){
-			RenderVertex(i, g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer, &re->renderer_lock);
-			RenderEdge(jumps[i], i, g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer, &re->renderer_lock);
-			RenderVertex(jumps[i], g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer, &re->renderer_lock);
-			i = jumps[i];
-			if(i==src_v) break;
-		}
-		struct timespec t1;
-		clock_gettime(CLOCK_REALTIME, &t1);
-		// if 5e9 ns (5s) has elapsed
-		if((t1.tv_sec-t0.tv_sec)*1e9+(t1.tv_nsec-t0.tv_nsec) > 5e9){
-		    break;
-		}
-	    }
+void re_rendergoodpath(RenderEnvironment* re, Graph const * g, int const * jumps, int src_v, int dest_v){
+    static int* path = NULL;
+    static int last = 0;
+    static int curr = 0;
+    if(path==NULL && last==0 && curr==0){
+	path = malloc(g->size*sizeof(int));
+	path[0] = dest_v;
+	while(path[last]!=src_v){
+	    path[last+1] = jumps[path[last]];
+	    ++last;
 	}
-    free(p);
-    phase = RESET_PATH;
-    pthread_exit(NULL);
-    return NULL;
+	curr = last;
+    }else if(path!=NULL){
+	if(curr==0){
+	    curr = 0;
+	    last = 0;
+	    free(path);
+	    path = NULL;
+	    phase = RESET_PATH;
+	}else{
+	    RenderVertex(path[last], g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+	    for(int j=last; j>=curr; --j){
+		RenderEdge(path[j], path[j-1], g->v_pos_x, g->v_pos_y, &re->elements.sp_edge, re->renderer);
+		RenderVertex(path[j-1], g->v_pos_x, g->v_pos_y, &re->elements.sp_vertex, re->renderer);
+	    }
+	    --curr;
+	}
+    }
 }
-
-void re_render_path(RenderEnvironment* re, Graph const * g, int const * jumps, int src_v, int dest_v){
-	pthread_t t = 0;
-	pthread_attr_t attr;
-	struct DrawPathData* data = malloc(sizeof(struct DrawPathData));
-	*data = (struct DrawPathData){.re=re, .g=g, .jumps=jumps, .src_v=src_v, .dest_v=dest_v};
-	phase = WAIT_DRAW;
-	pthread_create(&t, &attr, draw_path, (void*)data);
+void re_renderbadpath(RenderEnvironment* re, Graph const * g, int src_v, int dest_v, struct timespec const * t0){
+    RenderVertex(src_v, g->v_pos_x, g->v_pos_y, &re->elements.sp_bad_vertex, re->renderer);
+    RenderVertex(dest_v, g->v_pos_x, g->v_pos_y, &re->elements.sp_bad_vertex, re->renderer);
+    struct timespec t1;
+    clock_gettime(CLOCK_REALTIME, &t1);
+    if((t1.tv_sec-t0->tv_sec)*1e9+(t1.tv_nsec-t0->tv_nsec) > 2e9){
+	phase = RESET_PATH;
+	return;
+    }
 }
 
 void re_draw(RenderEnvironment* re){
-	pthread_mutex_lock(&(re->renderer_lock));
 	SDL_RenderPresent(re->renderer);
-	pthread_mutex_unlock(&(re->renderer_lock));
+	if(phase==DRAW_PATH){
+	    usleep(200000);
+	}
 }
 
 void re_free(RenderEnvironment* re){
@@ -222,5 +193,4 @@ void re_free(RenderEnvironment* re){
 	ru_free(&re->elements.edge);
 	ru_free(&re->elements.sp_vertex);
 	ru_free(&re->elements.sp_edge);
-	pthread_mutex_destroy(&(re->renderer_lock));
 }
